@@ -1,0 +1,321 @@
+tables:
+  - name: sales
+    sql: {{ load_sql('sales') }}
+    description: Table containing information about sales
+    public: true
+    meta:
+      export_to_board: false
+
+    joins:
+      - name: account
+        relationship: many_to_one
+        sql: "{TABLE.site_number} = {account.site_number} and {TABLE.customer_no} = {account.customer_id}"
+      - name: product
+        relationship: many_to_one
+        sql: "{TABLE.item_no}= {product.item_no}"
+
+    dimensions:
+      - name: sales_sk
+        type: string
+        column: sales_sk
+        public: true
+        primary_key: true
+        description: It is primary key of sales
+
+      - name: site_item_pk_sales
+        type: string
+        description: site in consideration during sales
+        column: site_item_pk_sales
+        public: false
+
+      - name: customer_no
+        type: string
+        description: A sales account ID is a unique code assigned to individual sales accounts within a system, facilitating efficient tracking and management of customer information.
+        column: customer_no
+
+      - name: site_number
+        type: number
+        description: A sales account ID is a unique code assigned to individual sales accounts within a system, facilitating efficient tracking and management of customer information.
+        column: site_number
+        public: true
+
+      - name: invoice_no
+        type: number
+        description: An invoice number is a unique identifier assigned to a specific invoice issued by a seller
+        column: invoice_no
+
+      - name: item_no
+        type: number
+        description: Unique identifier assigned to a specific product or item in inventory
+        column: item_no
+        # public: false
+
+      - name: qty_dec_equ
+        type: number
+        column: qty_dec_equ
+        description: Quantity decimal equivalent, It provides the information about SUM of cases & bottles in decimal. Example, A case contains 12 bottles and out of 12, 6 bottles are sold out. Now, Quantity decimal equivalent becomes 0.5
+
+      - name: ext_net
+        type: number
+        description: selling price of an product
+        column: ext_net
+
+      - name: invoice_date
+        type: time
+        column: invoice_date
+        description: Date of Invoice
+        meta:
+          checks:
+            - freshness < 3
+
+      - name: posting_date
+        type: time
+        column: posting_date
+        description: Posting date
+
+      - name: posting_period
+        type: time
+        column: posting_period
+        description: Posting Period (Format for this yyyy-mm-01)
+
+      - name: site_number
+        type: number
+        column: site_number
+        description: Unique identifier or code assigned to a specific location within their business operations.
+
+      - name: entry_origin
+        type: string
+        column: entry_origin
+        description: It indicates the flag identification of data source.
+                Example ->
+                F  -  "Web",
+                E  -  "EDI",
+                G  -  "Proof SR",
+                H  -  "Proof",
+                J  -  "Customer Order",
+                K  -  "Email to Order",
+                S  -  "Sales Rep"
+
+      - name: cases
+        column: cases
+        type: number
+        description: Number of cases.
+
+      - name: bottles
+        column: bottles
+        type: number
+        description: Number of bottles in case.
+
+      - name: source
+        type: string
+        column: source
+        description: It indicates the flag identification of data source, whether 'Proof' or 'Non-proof'.If data comes is Code('G','H') then "Proof" else "Non-proof" data.
+
+
+      - name: gross_profit
+        column: gross_profit
+        type: number
+        description: ext_net - ext_cost + ext_participation + ext_depl_allow +ext_guaranteed_adj -cqd_amt
+
+#      - name: invoice_postings_date
+#        column: cast({account.proof_invoice_date_first} as timestamp)
+#        type: time
+#        description: It describes the First invoice date of customer on 'Proof'
+
+
+    measures:
+      - name: recency_or_last_invoiced_date
+        sql:  date(invoice_date)
+        type: max
+        description: last invoice date of customer. It helps to find most recency of customer ,Use parameters on Lens UI and pass strings ('all', 'Proof', 'Non-proof') to calculate separate or combined
+
+      - name: last_invoiced_date_proof
+        sql: date(case when entry_origin in ('G','H') then invoice_date else null end)
+        type: max
+        description: Last invoice date of customer on 'Proof'
+
+      - name: last_invoiced_date_non_proof
+        sql: date(case when entry_origin not in ('G','H') then invoice_date else null end)
+        type: max
+        description: Last invoice date of customer on 'Non-Proof'
+
+      - name: recency_in_days
+        sql: DATEDIFF(current_date, MAX({posting_date}))
+        type: number
+        description:  It retrieves the most recency/frequency of customer in days.
+
+      - name: recency_in_months
+        sql: FLOOR(MONTHS_BETWEEN(current_date, MAX({posting_period})))
+
+        type: number
+        description:  It retrieves the most recency/frequency of customer in months.
+
+      - name: proof_share
+        sql: round((sum(ext_net) FILTER (WHERE lower({source}) = 'proof'))/
+          nullif(cast(sum(ext_net) as double),0),2)
+        type: number
+        description:  proof share revenue of customers
+
+      - name: revenue
+        sql: sum(ext_net)
+        type: number
+        description: Overall revenue generated by a business on 'Proof'
+
+      - name: wallet_share
+        sql: >
+           round((sum(ext_net) FILTER (WHERE lower({source}) = 'proof')) /cast(nullif(sum({ext_net}),0) as double),2)
+        type: number
+        description: It retrieves the Proof share of wallet in percentage.
+
+      - name: total_years
+        sql: count(distinct year(posting_date))
+        type: number
+        description: Overall revenue generated by a business on 'Proof'
+
+      - name: first_posting
+        sql: min(posting_date)
+        type: time
+
+      - name: first_posting_at_proof
+        sql: MIN(CASE WHEN entry_origin IN ('G', 'H') THEN posting_date ELSE NULL END)
+        type: time
+
+      - name: first_posting_at_non_proof
+        sql: MIN(CASE WHEN entry_origin NOT IN ('G', 'H') THEN posting_date ELSE NULL END)
+        type: time
+
+      - name: last_posting_date
+        sql: max(posting_date)
+        type: time
+
+      - name: last_posting_at_proof
+        sql: max(CASE WHEN entry_origin IN ('G', 'H') THEN posting_date ELSE NULL END)
+        type: time
+
+      - name: last_posting_at_non_proof
+        sql: max(CASE WHEN entry_origin NOT IN ('G', 'H') THEN posting_date ELSE NULL END)
+        type: time
+
+      - name: proof_revenue
+        sql: case when entry_origin in ('G','H')  then ext_net else 0 end
+        type: sum
+        description: Overall revenue generated by a business on 'Proof'
+
+      - name: non_proof_revenue
+        sql: case when entry_origin not in ('G','H')  then ext_net else 0 end
+        type: sum
+        description: Overall revenue generated by a business on 'Non-Proof'
+
+      - name: total_invoices_on_proof
+        sql: count(DISTINCT case when entry_origin in ('G','H') then invoice_no else null end)
+        type: number
+        description: Total number of invoices generated on 'Proof'.
+
+      - name: total_invoices_on_non_proof
+        sql: COUNT( DISTINCT case when entry_origin not in ('G','H')  then invoice_no else null end)
+        type: number
+        description: Total number of invoices generated on 'Non-Proof'.
+
+      - name: total_invoices
+        sql: count(distinct invoice_no)
+        type: number
+
+      - name: proof_revenue_2023
+        sql: sum( DISTINCT CASE WHEN entry_origin IN ('G', 'H') AND year(posting_period) = 2023 THEN ext_net ELSE 0 END)
+        type: number
+
+      - name: non_proof_revenue_2023
+        sql: sum( DISTINCT CASE WHEN entry_origin NOT IN ('G', 'H') AND year(posting_period) = 2023 THEN ext_net ELSE 0 END)
+        type: number
+
+      - name: repeat_order
+        sql: count(DISTINCT CASE WHEN posting_date >= current_date - INTERVAL '12' MONTH THEN invoice_no ELSE NULL END)
+        type: number
+
+      - name: early_repeat_order
+        sql: count(DISTINCT CASE WHEN posting_date >= current_date - INTERVAL '2' MONTH THEN invoice_no ELSE NULL END)
+        type: number
+
+      - name: aov
+        sql: sum(ext_net) / nullif(cast(count(DISTINCT invoice_no) AS double), 0)
+        type: number
+
+      - name: apy
+        sql: count(DISTINCT invoice_no) / count(DISTINCT year(posting_date))
+        type: number
+
+      - name: r12_months_revenue
+        sql: SUM(CASE WHEN posting_date > current_date - INTERVAL '12' MONTH AND ext_net > 0 THEN ext_net ELSE NULL END)
+        type: number
+
+      - name: duration
+        sql: CASE WHEN MAX(YEAR(posting_date)) - MIN(YEAR(posting_date)) = 0 THEN 1 ELSE MAX(YEAR(posting_date)) - MIN(YEAR(posting_date)) + 1 END
+        type: number
+
+      - name: total_orders_in_2022
+        sql: COUNT(DISTINCT CASE WHEN YEAR(posting_date) = 2022 AND entry_origin IN ('G', 'H') THEN invoice_no ELSE NULL END)
+        type: number
+
+      - name: reactivation_date
+        sql: MIN(CASE WHEN YEAR(posting_date) = 2023 AND entry_origin IN ('G', 'H') THEN posting_date ELSE NULL END)
+        type: number
+
+      - name: invoice_no_count
+        sql: invoice_no
+        type: count
+
+    segments:
+      - name: proof_sales
+        sql: "{TABLE}.source = 'proof'"
+
+      - name: nonproof_sales
+        public: true
+        sql: "{TABLE}.source = 'nonproof' "
+        meta:
+          secure:
+            user_groups:
+              includes:
+                - testing
+
+#    pre_aggregations:
+#      - name: simple
+#        measures:
+#          - sales.total_invoices
+#        dimensions:
+#          - sales.entry_origin
+#          - sales.source
+#        refresh_key:
+#          every: 1 hour
+#        indexes:
+#          - name: index_1
+#            columns:
+#              - sales.entry_origin
+#              - sales.source
+#
+#      - name: advance
+#        measures:
+#          - sales.proof_revenue
+#        dimensions:
+#          - sales.entry_origin
+#          - sales.source
+#        refresh_key:
+#          every: 1 hour
+#          sql: SELECT MAX(cast(invoice_dt_sk AS timestamp)) FROM "sales360mockdb".f_sales
+#        time_dimension: sales.invoice_date
+#        granularity: month
+#        partition_granularity: quarter
+#
+#      - name: time_partition_based
+#        measures:
+#          - sales.proof_revenue
+#        dimensions:
+#          - sales.entry_origin
+#          - sales.source
+#        time_dimension: sales.invoice_date
+#        granularity: day
+#        refresh_key:
+#          every: 1 hour
+#          update_window: 7 day
+#          incremental: true
+#        partition_granularity: month
+

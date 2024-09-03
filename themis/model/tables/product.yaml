@@ -1,0 +1,95 @@
+tables:
+  - name: product
+    sql: {{ load_sql('product') }}
+    description: Table containing information about product
+    public: true
+    meta:
+      export_to_board: false
+
+    dimensions:
+      - name: item_no
+        type: number
+        description: Item number.
+        column: item_no
+        primary_key: true
+        public: true
+
+      - name: category
+        type: string
+        description: category of product.
+        column: category
+
+      - name: brand
+        type: string
+        description: Corporate item brand name.
+        column: brand
+
+      - name: product_name
+        type: string
+        description: Product name.
+        column: product_name
+
+      - name: class
+        type: string
+        description: Class of the product.
+        column: class
+
+      - name: class_description
+        type: string
+        description: Item class description.
+        column: class_description
+
+      - name: sub_class
+        type: string
+        description: Sub class of the product.
+        column: sub_class
+
+      - name: flavor
+        type: string
+        description: Flavor of the product.
+        column: flavor
+
+      - name: varietal
+        type: string
+        description: Varietal of the product.
+        column: varietal
+
+      - name: vintage
+        type: number
+        description: Vintage of the product.
+        column: vintage
+
+      - name: product_size
+        type: string
+        description: Size of the product.
+        column: product_size
+
+      - name: bottles_per_case
+        type: number
+        description: Number of bottles per case.
+        column: bottles_per_case
+
+      - name: unit_price
+        type: number
+        description: Unit price of the product.
+        column: unit_price
+
+      - name: supplier_name
+        type: string
+        description: Corporate item supplier name.
+        column: supplier_name
+
+      - name: warehouse_no
+        type: string
+        description: Warehouse number.
+        column: warehouse_no
+
+      - name: prod_availability_start_date
+        type: string
+        description: Product availability start date.
+        column: prod_availability_start_date
+
+      - name: prod_availability_end_date
+        type: string
+        description: Product availability end date.
+        column: prod_availability_end_date
