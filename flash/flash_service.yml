@@ -1,0 +1,36 @@
+name: flash-service-99flash/deploy-compose.yaml
+version: v1
+type: service
+tags:
+  - service
+description: flash service
+workspace: public
+service:
+  servicePort: 5433
+  replicas: 1
+  logLevel: info
+  compute: runnable-default
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 1024Mi
+  stack: flash+python:1.0
+  stackSpec:
+    datasets:
+      - address: dataos://icebase:sales360mockdb/f_sales    #view
+        name: sales
+    
+      - address: dataos://icebase:sales360mockdb/customer_data_master
+        name: customer_data_master
+    
+      - address: dataos://icebase:sales360mockdb/site_check1
+        name: site_check1
+    
+      - address: dataos://icebase:sales360mockdb/product_data_master
+        name: product_data_master
+    
+    init:
+      - create or replace table f_sales as (select * from sales)  #table
+      - create or replace table m_customer as (select * from customer_data_master)
+      - create or replace table m_sites as (select * from site_check1)
+      - create or replace table m_product as (select * from product_data_master)

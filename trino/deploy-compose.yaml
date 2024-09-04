@@ -1,0 +1,71 @@
+---
+version: v1alpha
+name: "trino"
+layer: user
+type: lens
+tags:
+  - lens
+description: sales360 deployment on lens2
+lens:
+  compute: runnable-default
+  # required only if the repo is private
+  secrets:
+    - name: bitbucket-r
+      allKeys: true
+  source:
+    type: minerva
+    name: miniature
+    catalog: icebase
+  repo:
+    url: https://bitbucket.org/rubik_/lens2-smoke-test
+    lensBaseDir: lens2-smoke-test/lens2/trino/model
+    # secretId: lens2_bitbucket_r
+    syncFlags:
+      - --ref=main
+  api:   # optional
+    replicas: 1 # optional
+    logLevel: info  # optional
+    envs:
+      LENS2_SCHEDULED_REFRESH_TIMEZONES: "UTC,America/Vancouver,America/Toronto"
+      # LENS2_DEV_MODE: "true"
+    resources: # optional
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 2000m
+        memory: 2048Mi
+  worker: # optional
+    replicas: 1 # optional
+    logLevel: debug  # optional
+    envs:
+      LENS2_SCHEDULED_REFRESH_TIMEZONES: "UTC,America/Vancouver,America/Toronto"
+      # LENS2_DEV_MODE: "true"
+    resources: # optional
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 6000m
+        memory: 6048Mi
+  router: # optional
+    logLevel: info  # optional
+    envs:
+      LENS2_SCHEDULED_REFRESH_TIMEZONES: "UTC,America/Vancouver,America/Toronto"
+      # LENS2_DEV_MODE: "true"
+    resources: # optional
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 6000m
+        memory: 6048Mi
+  # iris:
+  #   logLevel: debug
+  #   resources: # optional
+  #     requests:
+  #       cpu: 100m
+  #       memory: 256Mi
+  #     limits:
+  #       cpu: 6000m
+  #       memory: 6048Mi

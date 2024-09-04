@@ -1,0 +1,120 @@
+
+x-lens2-environment: &lens2-environment
+  # DataOS
+  DATAOS_FQDN: liberal-donkey.dataos.app
+  # Overview
+  LENS2_NAME: trino
+  LENS2_DESCRIPTION: "Ecommerce use case on Adventureworks sales data"
+  LENS2_TAGS: "lens2, ecom, sales and customer insights"
+  LENS2_AUTHORS: "rakeshvishvakarma, shubhanshu"
+  LENS2_SCHEDULED_REFRESH_TIMEZONES: "UTC,America/Vancouver,America/Toronto"
+  # Data Source
+  LENS2_SOURCE_TYPE: minerva
+  LENS2_SOURCE_NAME: system
+  LENS2_SOURCE_CATALOG_NAME: icebase
+  DATAOS_RUN_AS_APIKEY: cmFrZXNoX3Rlc3RpbmcuMzIxNjA5MDUtYzNkYS00MmNiLWFjZWItMGU0ZTI0ZGViYTFk
+
+  # audit
+  # LENS2_AGENT_ENDPOINT_URL: https://11ee-150-129-144-242.ngrok-free.app/lens2/api/sales360/v2/query_audit
+
+  # Log
+  LENS2_LOG_LEVEL: error
+  CACHE_LOG_LEVEL: "trace"
+  # Operation
+  LENS2_DEV_MODE: true
+  LENS2_DEV_MODE_PLAYGROUND: false
+  LENS2_REFRESH_WORKER: true
+  LENS2_SCHEMA_PATH: model
+  LENS2_PG_SQL_PORT: 5432
+  CACHE_DATA_DIR: "/var/work/.store"
+  NODE_ENV: production
+  LENS2_ALLOW_UNGROUPED_WITHOUT_PRIMARY_KEY: "true"
+services:
+  api:
+    restart: always
+    image: rubiklabs/lens2:0.35.60-1
+    ports:
+      - 4000:4000
+      - 25432:5432
+    environment:
+      <<: *lens2-environment
+      LENS2_PG_SQL_PORT: 5432
+      LENS2_PRE_AGGREGATIONS_BUILDER: true
+    volumes:
+      - ./model:/etc/dataos/work/model
+    networks:
+      - lens2
+
+  refresh_worker:
+    restart: always
+    image: rubiklabs/lens2:0.35.60-1
+    environment:
+      <<: *lens2-environment
+      LENS2_REFRESH_WORKER: true
+    volumes:
+      - ./model:/etc/dataos/work/model
+    depends_on:
+      - router
+    networks:
+      - lens2
+
+  router:
+    restart: always
+    image: rubiklabs/lens2-router:0.35.60-1
+    command: router
+    ports:
+      - 3030:3030
+      - 13306:3306
+    environment:
+      <<: *lens2-environment
+      ROUTER_REMOTE_DIR: "/cache/data"
+      ROUTER_META_PORT: 9999
+      ROUTER_SERVER_NAME: "router:9999"
+      ROUTER_WORKERS: "router_worker_1:10001,router_worker_2:10002"
+    volumes:
+      - ./model:/etc/dataos/work/model
+      - ./cache:/cache/data
+    networks:
+      - lens2
+
+  router_worker_1:
+    restart: always
+    image: rubiklabs/lens2-router:0.35.60-1
+    command: router
+    environment:
+      <<: *lens2-environment
+      ROUTER_SERVER_NAME: "router_worker_1:10001"
+      ROUTER_WORKER_PORT: 10001
+      ROUTER_REMOTE_DIR: "/cache/data"
+      ROUTER_META_ADDR: "router:9999"
+      ROUTER_WORKERS: "router_worker_1:10001,router_worker_2:10002"
+    volumes:
+      - ./model:/etc/dataos/work/model
+      - ./cache:/cache/data
+    depends_on:
+      - router
+    networks:
+      - lens2
+
+  router_worker_2:
+    restart: always
+    image: rubiklabs/lens2-router:0.35.60-1
+    command: router
+    environment:
+      <<: *lens2-environment
+      ROUTER_SERVER_NAME: "router_worker_2:10002"
+      ROUTER_WORKER_PORT: 10002
+      ROUTER_REMOTE_DIR: "/cache/data"
+      ROUTER_META_ADDR: "router:9999"
+      ROUTER_WORKERS: "router_worker_1:10001,router_worker_2:10002"
+    volumes:
+      - ./model:/etc/dataos/work/model
+      - ./cache:/cache/data
+    depends_on:
+      - router
+    networks:
+      - lens2
+
+networks:
+  lens2:
+    driver: bridge
