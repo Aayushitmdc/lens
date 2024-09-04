@@ -1,0 +1,124 @@
+tables:
+  - name: account
+    sql: {{ load_sql('account') }}
+    description: Table containing information about account
+    public: true
+    meta:
+      export_to_board: false
+
+    dimensions:
+      - name: site_number
+        column: site_number
+        type: number
+        description: The site number.
+
+      - name: customer_no
+        column: customer_no
+        type: number
+        description: Customer primary key.
+
+      - name: customer_id
+        column: customer_id
+        type: string
+        description: Concatenation for customer and product.
+        primary_key: true
+        public: true
+
+      - name: customer_name
+        column: customer_name
+        type: string
+        description: Name of the customer.
+
+      - name: address
+        column: address
+        type: string
+        description: Address of the customer.
+
+      - name: city
+        column: city
+        type: string
+        description: City of the customer.
+
+      - name: county_name
+        column: county_name
+        type: string
+        description: County name of the customer.
+
+      - name: state
+        column: state
+        type: string
+        description: State of the customer.
+
+      - name: country
+        column: country
+        type: string
+        description: Country of the customer.
+
+      - name: zip_code
+        column: zip_code
+        type: number
+        description: Zip code of the customer.
+
+      - name: email
+        column: email
+        type: string
+        description: Email address of the customer.
+        meta:
+          secure:
+            func: redact
+            user_groups: 
+              includes:
+                - testing
+
+      - name: phone_number
+        column: phone_number
+        type: number
+        description: Phone number of the customer.
+
+      - name: premise_code
+        column: premise_code
+        type: string
+        description: Premise code.
+
+      - name: license_type
+        column: license_type
+        type: string
+        description: Type of license.
+
+      - name: license_name
+        column: license_name
+        type: string
+        description: Name of the license.
+
+      - name: customer_status
+        column: customer_status
+        type: string
+        description: Status of the customer.
+
+      - name: site_name
+        column: site_name
+        type: string
+        description: Name of the site.
+
+      - name: site_region
+        column: site_region
+        type: string
+        description: Region of the site.
+
+      - name: cust_onboarded_dt
+        column: cust_onboarded_dt
+        type: time
+        description: Customer onboarded time.
+
+      - name: proof_invoice_date_first
+        column: "{sales.first_posting_at_proof}"
+        type: time
+        description: Customer onboarded time. 
+        public: true  
+        sub_query: true
+
+    measures:
+      - name: total_accounts
+        type: number
+        description: Total customers.
+        sql: count(distinct {TABLE.customer_id}) 
