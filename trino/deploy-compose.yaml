@@ -1,6 +1,6 @@
 ---
 version: v1alpha
-name: "trino"
+name: "lens-trino-test"
 layer: user
 type: lens
 tags:
