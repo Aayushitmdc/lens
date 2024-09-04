@@ -8,7 +8,8 @@ user_groups:
       - jobs
       - source
     includes:
-      - users:id:testing
+      - users:id:aayushisolanki
+      - users:id:manishagrawal
 
   - name: default
     includes: "*"

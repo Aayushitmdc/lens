@@ -19,7 +19,7 @@ lens:
   repo:
     url: https://github.com/Aayushitmdc/lens
     lensBaseDir: lens/trino/model
-    # secretId: lens2_bitbucket_r
+    secretId: githubr
     syncFlags:
       - --ref=main
   api:   # optional
@@ -60,12 +60,12 @@ lens:
       limits:
         cpu: 6000m
         memory: 6048Mi
-  # iris:
-  #   logLevel: debug
-  #   resources: # optional
-  #     requests:
-  #       cpu: 100m
-  #       memory: 256Mi
-  #     limits:
-  #       cpu: 6000m
-  #       memory: 6048Mi
+  iris:
+    logLevel: debug
+    resources: # optional
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 6000m
+        memory: 6048Mi
