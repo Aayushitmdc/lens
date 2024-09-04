@@ -10,7 +10,7 @@ lens:
   compute: runnable-default
   # required only if the repo is private
   secrets:
-    - name: bitbucket-r
+    - name: githubr
       allKeys: true
   source:
     type: minerva

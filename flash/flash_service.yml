@@ -1,4 +1,4 @@
-name: flash-service-99flash/deploy-compose.yaml
+name: flash-service-99
 version: v1
 type: service
 tags:
@@ -31,6 +31,6 @@ service:
     
     init:
       - create or replace table f_sales as (select * from sales)  #table
-      - create or replace table m_customer as (select * from customer_data_master)
+      - create or replace table m_customers as (select * from customer_data_master)
       - create or replace table m_sites as (select * from site_check1)
-      - create or replace table m_product as (select * from product_data_master)
+      - create or replace table m_products as (select * from product_data_master)
