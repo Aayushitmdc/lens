@@ -15,7 +15,7 @@ lens:
       allKeys: true # All keys within the secret are required or not (optional)
   source: # Data Source configuration
     type: themis # Source type 
-    name: system # Source name
+    name: system # cluster name
     catalog: icebase #in case of minerva or themis
   repo: # Lens2 model code repository configuration (mandatory)
     url: https://github.com/Aayushitmdc/lens/ # URL of repository containing the Lens2 model (mandatory)
