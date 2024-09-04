@@ -3,20 +3,9 @@ views:
     description: View containing sales 360 degree information
     public: true
     meta:
-      # export_to_board: false
-      # board:
-      #   timeseries: sales.posting_date
-      #   excludes:
-      #    - sales.source
-      #   refresh:
-      #     every: 24h
-      
       export_to_iris: true
       iris:
         timeseries: sales.posting_date
-        excludes:
-         - sales.source
-         - sales.posting_date
         refresh:
           every: 24h
 

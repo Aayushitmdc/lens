@@ -17,8 +17,8 @@ lens:
     name: miniature
     catalog: icebase
   repo:
-    url: https://bitbucket.org/rubik_/lens2-smoke-test
-    lensBaseDir: lens2-smoke-test/lens2/trino/model
+    url: https://github.com/Aayushitmdc/lens
+    lensBaseDir: lens/trino/model
     # secretId: lens2_bitbucket_r
     syncFlags:
       - --ref=main

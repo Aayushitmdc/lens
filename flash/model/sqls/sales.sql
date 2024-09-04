@@ -12,7 +12,7 @@ SELECT
   bottles,
   item_no,
   qty_dec_equ,
-  ext_net,
+  cast(ext_net as int) as ext_net ,
   unit_price,
   invoice_dt_sk::timestamptz + (RANDOM() * 10)::integer * interval '1 day' AS posting_date,
   entry_origin,
