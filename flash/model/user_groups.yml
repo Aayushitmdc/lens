@@ -10,13 +10,13 @@ user_groups:
     includes:
       - users:id:iamgroot
 
-  - name: data_analyst
-    api_scopes:
-      - meta
-      - data
-      - graphql
-      - jobs
-      - source
-    includes: 
-      - users:id:manishagrawal
-      - users:id:aayushisolanki
+  # - name: data_analyst
+  #   api_scopes:
+  #     - meta
+  #     - data
+  #     - graphql
+  #     - jobs
+  #     - source
+  #   includes: 
+  #     - users:id:manishagrawal
+  #     - users:id:aayushisolanki
