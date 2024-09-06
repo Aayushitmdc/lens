@@ -1,6 +1,6 @@
 user_groups:
-  - name: testing
-    description: hello
+  - name: marketing
+    description: people from marketing will be assigned this user group
     api_scopes:
       - meta
       - data
@@ -8,14 +8,15 @@ user_groups:
       - jobs
       - source
     includes:
-      - users:id:aayushisolanki
-      - users:id:manishagrawal
+      - users:id:iamgroot
 
-  - name: default
-    includes: "*"
+  - name: data_analyst
     api_scopes:
       - meta
       - data
       - graphql
       - jobs
       - source
+    includes: 
+      - users:id:manishagrawal
+      - users:id:aayushisolanki
