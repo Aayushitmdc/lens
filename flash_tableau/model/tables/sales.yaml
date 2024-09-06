@@ -162,4 +162,3 @@ tables:
 
       - name: first_posting_at_non_proof
         sql: EXTRACT(EPOCH FROM MIN(CASE WHEN entry_origin NOT IN ('G', 'H') THEN posting_date ELSE NULL END))
-        type: number
