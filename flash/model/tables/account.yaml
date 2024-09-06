@@ -65,7 +65,7 @@ tables:
             func: redact
             user_groups: 
               includes:
-                - testing
+                - marketing
 
       - name: phone_number
         column: phone_number
