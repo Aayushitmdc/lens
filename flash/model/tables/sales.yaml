@@ -267,9 +267,11 @@ tables:
         sql: "{TABLE}.source = 'nonproof' "
         meta:
           secure:
+            func: redact
             user_groups:
-              includes:
-                - testing
+              includes: "*"
+              excludes:
+                - default
 
 #    pre_aggregations:
 #      - name: simple
