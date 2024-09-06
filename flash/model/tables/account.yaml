@@ -64,8 +64,7 @@ tables:
           secure:
             func: redact
             user_groups: 
-              includes:
-                - marketing
+              includes: marketing
 
       - name: phone_number
         column: phone_number
