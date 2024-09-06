@@ -1,5 +1,5 @@
 version: v1alpha
-name: "lens-flash-tableau-101"
+name: "lens-flash-tableau-01"
 layer: user
 type: lens
 tags:
