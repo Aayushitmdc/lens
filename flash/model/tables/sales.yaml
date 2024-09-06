@@ -269,5 +269,5 @@ tables:
           secure:
             user_groups:
               includes:
-                - testing
+                - marketing
 
