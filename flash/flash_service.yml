@@ -14,7 +14,7 @@ service:
     requests:
       cpu: 1000m
       memory: 1024Mi
-  stack: flash+python:1.0
+  stack: flash+python:2.0
   stackSpec:
     datasets:
       - address: dataos://icebase:sales360mockdb/f_sales    #view
