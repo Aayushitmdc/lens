@@ -32,5 +32,5 @@ FROM
       site_name,
       site_region
     FROM
-      "main".m_sites AS site
+      "main".m_sites
   ) AS site ON customer.site_number = site.site_number
