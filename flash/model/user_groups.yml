@@ -8,7 +8,7 @@ user_groups:
       - jobs
       - source
     includes:
-      - users:id:iamgroot
+      - users:id:marketing
 
   - name: default
     includes: "*"
