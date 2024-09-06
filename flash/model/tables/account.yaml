@@ -66,8 +66,8 @@ tables:
             user_groups: 
               includes:
                 - marketing
-              excludes:
-                - data_analyst
+              # excludes:
+              #   - data_analyst
 
       - name: phone_number
         column: phone_number
