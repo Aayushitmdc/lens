@@ -1,164 +1,77 @@
-tables:
-  - name: sales
-    sql: {{ load_sql('sales') }}
-    description: Table containing information about sales
-    public: true
-    joins:
-      - name: account
-        relationship: many_to_one
-        sql: "{TABLE.site_number} = {account.site_number} and {TABLE.customer_no} = {account.customer_id}"
-      - name: product
-        relationship: many_to_one
-        sql: "{TABLE.item_no}= {product.item_no}"
-    dimensions:
-      - name: sales_sk
-        type: string
-        column: sales_sk
-        public: true
-        primary_key: true
-        description: It is primary key of sales
+version: v1alpha
+name: "lens-flash-tableau-101"
+layer: user
+type: lens
+tags:
+  - lens
+description: A sample lens that contains three entities, a view and a few measures for users to test
+lens:
+  compute: runnable-default
+  secrets: # Referred Instance-secret configuration (**mandatory for private code repository, not required for public repository)
+    - name: githubr # Referred Instance Secret name (mandatory)
+      allKeys: true # All keys within the secret are required or not (optional)
+  source:
+    type: flash # minerva, themis and depot
+    name: flash-service-99 # flash service name
+  repo:
+    url: https://github.com/Aayushitmdc/lens
+    lensBaseDir: lens/flash/model     # location where lens models are kept in the repo
+    syncFlags:
+      - --ref=main
+  api:
+    replicas: 1
+    logLevel: debug
+    envs:
+      LENS2_SCHEDULED_REFRESH_TIMEZONES: "UTC,America/Vancouver,America/Toronto"
+      LENS2_SOURCE_WORKSPACE_NAME: public
+      LENS2_SOURCE_FLASH_PORT: 5433
+    resources: # optional
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 2000m
+        memory: 2048Mi
 
-      - name: site_item_pk_sales
-        type: string
-        description: site in consideration during sales
-        column: site_item_pk_sales
-        public: false
+  worker:
+    replicas: 1
+    logLevel: debug
+    envs:
+      LENS2_SCHEDULED_REFRESH_TIMEZONES: "UTC,America/Vancouver,America/Toronto"
+      LENS2_SOURCE_WORKSPACE_NAME: public
+      LENS2_SOURCE_FLASH_PORT: 5433
+    resources: # optional
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 6000m
+        memory: 6048Mi
 
-      - name: customer_no
-        type: string
-        description: A sales account ID is a unique code assigned to individual sales accounts within a system, facilitating efficient tracking and management of customer information.
-        column: customer_no
+  router:
+    logLevel: info
+    envs:
+      LENS2_SCHEDULED_REFRESH_TIMEZONES: "UTC,America/Vancouver,America/Toronto"
+      LENS2_SOURCE_WORKSPACE_NAME: public
+      LENS2_SOURCE_FLASH_PORT: 5433
+    resources: # optional
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 6000m
+        memory: 6048Mi
 
-      - name: site_number
-        type: number
-        description: A sales account ID is a unique code assigned to individual sales accounts within a system, facilitating efficient tracking and management of customer information.
-        column: site_number
-        public: true
-
-      - name: invoice_no
-        type: number
-        description: An invoice number is a unique identifier assigned to a specific invoice issued by a seller
-        column: invoice_no
-
-      - name: item_no
-        type: number
-        description: Unique identifier assigned to a specific product or item in inventory
-        column: item_no
-
-      - name: qty_dec_equ
-        type: number
-        column: qty_dec_equ
-        description: Quantity decimal equivalent, It provides the information about SUM of cases & bottles in decimal. Example, A case contains 12 bottles and out of 12, 6 bottles are sold out. Now, Quantity decimal equivalent becomes 0.5
-
-      - name: ext_net
-        type: number
-        description: selling price of an product
-        column: ext_net
-
-      - name: invoice_date
-        type: time
-        column: invoice_date
-        description: Date of Invoice
-        meta:
-          checks:
-            - freshness < 3
-
-      - name: posting_date
-        type: time
-        column: posting_date
-        description: Posting date
-
-      - name: posting_period
-        type: time
-        column: posting_period
-        description: Posting Period (Format for this yyyy-mm-01)
-
-      - name: entry_origin
-        type: string
-        column: entry_origin
-        description: It indicates the flag identification of data source.
-                Example ->
-                F  -  "Web",
-                E  -  "EDI",
-                G  -  "Proof SR",
-                H  -  "Proof",
-                J  -  "Customer Order",
-                K  -  "Email to Order",
-                S  -  "Sales Rep"
-
-      - name: cases
-        column: cases
-        type: number
-        description: Number of cases.
-
-      - name: bottles
-        column: bottles
-        type: number
-        description: Number of bottles in case.
-
-      - name: source
-        type: string
-        column: source
-        description: It indicates the flag identification of data source, whether 'Proof' or 'Non-proof'.If data comes is Code('G','H') then "Proof" else "Non-proof" data.
-
-      - name: gross_profit
-        column: gross_profit
-        type: number
-        description: ext_net - ext_cost + ext_participation + ext_depl_allow +ext_guaranteed_adj -cqd_amt
-
-    measures:
-      - name: recency_or_last_invoiced_date
-        sql: EXTRACT(EPOCH FROM date(invoice_date))
-        type: number
-        description: last invoice date of customer. It helps to find most recency of customer ,Use parameters on Lens UI and pass strings ('all', 'Proof', 'Non-proof') to calculate separate or combined
-
-      - name: last_invoiced_date_proof
-        sql: EXTRACT(EPOCH FROM date(case when entry_origin in ('G','H') then invoice_date else null end))
-        type: number
-        description: Last invoice date of customer on 'Proof'
-
-      - name: last_invoiced_date_non_proof
-        sql: EXTRACT(EPOCH FROM date(case when entry_origin not in ('G','H') then invoice_date else null end))
-        type: number
-        description: Last invoice date of customer on 'Non-Proof'
-
-      - name: recency_in_days
-        sql: DATEDIFF(current_date::timestamptz, MAX(posting_date))
-        type: number
-        description:  It retrieves the most recency/frequency of customer in days.
-
-      - name: recency_in_months
-        sql: MOD(FLOOR(MONTHS_BETWEEN(current_date::timestamptz, MAX(posting_period))), 12)
-        type: number
-        description:  It retrieves the most recency/frequency of customer in months.
-
-      - name: proof_share
-        sql: round((sum(ext_net) FILTER (WHERE lower({source}) = 'proof'))/nullif(cast(sum(ext_net) as double),0),2)
-        type: number
-        description:  proof share revenue of customers
-
-      - name: revenue
-        sql: sum(ext_net)
-        type: number
-        description: Overall revenue generated by a business on 'Proof'
-
-      - name: wallet_share
-        sql: round((sum(ext_net) FILTER (WHERE lower({source}) = 'proof')) /cast(nullif(sum({ext_net}),0) as double),2)
-        type: number
-        description: It retrieves the Proof share of wallet in percentage.
-
-      - name: total_years
-        sql: count(distinct year(posting_date))
-        type: number
-        description: Overall revenue generated by a business on 'Proof'
-
-      - name: first_posting
-        sql: EXTRACT(EPOCH FROM MIN(posting_date))
-        type: number
-
-      - name: first_posting_at_proof
-        sql: EXTRACT(EPOCH FROM MIN(CASE WHEN entry_origin IN ('G', 'H') THEN posting_date ELSE NULL END))
-        type: number
-
-      - name: first_posting_at_non_proof
-        sql: EXTRACT(EPOCH FROM MIN(CASE WHEN entry_origin NOT IN ('G', 'H') THEN posting_date ELSE NULL END))
+  iris:
+    logLevel: info  
+    envs:
+      LENS2_SCHEDULED_REFRESH_TIMEZONES: "UTC,America/Vancouver,America/Toronto"
+      LENS2_SOURCE_WORKSPACE_NAME: public
+      LENS2_SOURCE_FLASH_PORT: 5433
+    resources: # optional
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 6000m
+        memory: 6048Mi
