@@ -18,10 +18,10 @@ lens:
     name: system # Source name
     catalog: icebase #in case of minerva or themis
   repo: # Lens2 model code repository configuration (mandatory)
-    url: https://github.com/NandaAtModern/lens # URL of repository containing the Lens2 model (mandatory)
+    url: https://github.com/Aayushitmdc/lens # URL of repository containing the Lens2 model (mandatory)
     lensBaseDir: lens/tableau/model # Relative path of the Lens2 'model' directory in repository (mandatory)
     syncFlags: # Additional flags used during synchronization, such as specific branch.
-      - --ref=master # Repository Branch 
+      - --ref=main # Repository Branch 
   api: # API Instances configuration (optional)
     replicas: 1 # Number of API instance replicas (optional)
     logLevel: info  # Logging granularity (optional)
