@@ -85,8 +85,7 @@ tables:
           secure:
             func: redact
             user_groups:
-              includes:
-                - marketing # secure for everyone
+              includes: marketing # secure for everyone
               excludes:
                 - "*"  # except default        
 
