@@ -84,10 +84,10 @@ tables:
         meta:
           secure:
             func: redact
-            user_groups:
-              includes: marketing # secure for everyone
-              excludes:
-                - "*"  # except default        
+            user_groups: 
+              includes: "*"
+              excludes: 
+                - default   
 
       - name: hobbies
         type: string
