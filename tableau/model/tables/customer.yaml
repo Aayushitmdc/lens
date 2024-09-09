@@ -85,9 +85,9 @@ tables:
           secure:
             func: redact
             user_groups: 
-              includes: "*"
+              includes: marketing
               excludes: 
-                - default   
+                - "*" 
 
       - name: hobbies
         type: string
