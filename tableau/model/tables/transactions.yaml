@@ -9,7 +9,7 @@ tables:
 
       # - name: channel
       #   relationship: many_to_one
-      #   sql: "{TABLE.store_id}= {channel.store_id}"           
+      #   sql: "{TABLE.store_id}= {channel.store_id}"       
 
     dimensions:
       - name: transaction_id
