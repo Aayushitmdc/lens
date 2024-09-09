@@ -1,0 +1,36 @@
+views:
+  - name: wallet_sales_view
+    description: View containing sales 360 degree information
+    public: true
+    meta:
+      export_to_iris: true
+      iris:
+        timeseries: sales.posting_date
+        refresh:
+          every: 24h
+
+    tables:
+      - join_path: sales
+        prefix: false
+        includes:
+          - revenue
+          - wallet_share
+          - posting_date
+          - ext_net
+          - source
+
+      - join_path: product
+        prefix: false
+        includes:
+          - category
+          - brand
+          - class
+
+      - join_path: account
+        prefix: false
+        includes:
+          - premise_code
+          - site_name
+          - state
+          - license_type
+          
