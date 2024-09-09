@@ -1,0 +1,25 @@
+SELECT
+  cast(customer_id AS varchar) AS customer_id,
+  first_name,
+  last_name,
+  gender,
+  phone_number,
+  email_id,
+  cast( date_parse(birth_date,'%d-%m-%Y') as timestamp) as birth_date,
+  age,
+  education_level,
+  marital_status,
+  number_of_children,
+  cast(register_date as timestamp) as register_date,
+  occupation,
+  annual_income,
+  hobbies,
+  degree_of_loyalty,
+  social_class,
+  mailing_street,
+  city,
+  state,
+  country,
+  zip_code
+FROM
+  "icebase"."sales_360".customer

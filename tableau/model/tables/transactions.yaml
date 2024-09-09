@@ -1,0 +1,242 @@
+tables:
+  - name: transactions
+    sql: {{ load_sql('transactions') }}
+    description: Table containing information about customer records.
+    joins:
+      - name: products
+        relationship: many_to_one
+        sql: "{TABLE.skuid}= {products.skuid}"   
+
+      # - name: channel
+      #   relationship: many_to_one
+      #   sql: "{TABLE.store_id}= {channel.store_id}"           
+
+    dimensions:
+      - name: transaction_id
+        type: string
+        description: Unique identifier for each transaction.
+        sql: transaction_id
+        primary_key : true
+        public : true          
+      
+      - name: customer_id
+        type: string
+        description: Unique identifier for each customer.
+        sql: customer_id
+      
+      - name: transaction_date
+        type: time
+        description: The date and time when the transaction occurred.
+        sql: transaction_date 
+      
+      - name: order_id
+        type: string
+        description: Unique identifier for each order.
+        sql: order_id
+      
+      - name: transaction_amount
+        type: number
+        description: The amount of money involved in the transaction.
+        sql: transaction_amount
+      
+      - name: payment_method
+        type: string
+        description: The method of payment used for the transaction.
+        sql: payment_method
+      
+      - name: transaction_type
+        type: string
+        description: The type of transaction (e.g., purchase, refund).
+        sql: transaction_type
+      
+      - name: transaction_status
+        type: string
+        description: The status of the transaction (e.g., completed, pending).
+        sql: transaction_status
+               
+      
+      - name: order_delivery_date
+        type: time
+        description: The date and time when the order is expected to be delivered.
+        sql: order_delivery_date 
+      
+      - name: discounted_amount
+        type: number
+        description: The amount of discount applied to the order.
+        sql: discounted_amount
+      
+      - name: shipping_amount
+        type: number
+        description: The cost of shipping for the order.
+        sql: shipping_amount
+      
+      - name: order_total_amount
+        type: number
+        description: The total amount for the order including discounts and shipping.
+        sql: order_total_amount
+        public : false          
+
+      
+      - name: discount_percentage
+        type: number
+        description: The percentage of discount applied to the order.
+        sql: discount_percentage
+      
+      - name: shipping_address
+        type: string
+        description: The address where the order is to be shipped.
+        sql: shipping_address
+      
+      - name: billing_address
+        type: string
+        description: The address where the bill is to be sent.
+        sql: billing_address
+      
+      - name: promo_code
+        type: string
+        description: The promotional code applied to the order, if any.
+        sql: promo_code
+      
+      - name: shipping_method
+        type: string
+        description: The method of shipping used for the order.
+        sql: shipping_method
+      
+      - name: order_status
+        type: string
+        description: The status of the order (e.g., processing, shipped).
+        sql: order_status
+      
+      - name: skuid
+        type: string
+        description: The stock-keeping unit identifier.
+        sql: skuid
+
+      - name: full_address
+        type: string
+        sql: CONCAT(shipping_address, ' ', billing_address)
+        description: Concatenation of the shipping and billing address
+
+      - name: transaction_year
+        type: number
+        sql: YEAR(transaction_date)
+        description: Year of the transaction
+
+      - name: transaction_month
+        type: number
+        sql: MONTH(transaction_date)
+        description: Month of the transaction
+
+      - name: transaction_day
+        type: number
+        sql: DAY(transaction_date)
+        description: Day of the transaction
+
+      - name: order_delivery_duration
+        type: number
+        sql: COALESCE(DATE_DIFF('day',transaction_date,order_delivery_date),0)
+        description: Number of days between order date and delivery date
+
+      - name: discount_applied
+        type: string
+        sql: case when discounted_amount > 0 then 'true'
+              else 'false' 
+              end
+        description: Indicates if a discount was applied to the transaction
+
+      - name: shipping_cost_category
+        type: string
+        sql: CASE 
+                       WHEN shipping_amount = 0 THEN 'Free Shipping'
+                       WHEN shipping_amount < 10 THEN 'Low Cost Shipping'
+                       ELSE 'High Cost Shipping'
+                     END
+        description: Category of shipping cost based on the amount
+
+
+      # - name: store_id
+      #   type: string
+      #   description: The stock-keeping unit identifier.
+      #   sql: store_id
+     
+      
+    measures:
+      - name: total_transactions
+        sql: transaction_id
+        type: count_distinct
+        description: Total number of transactions
+
+      - name: total_revenue
+        sql: SUM(transaction_amount)
+        type: number
+        description: Total revenue from transactions
+
+      - name: average_transaction_amount
+        sql: AVG(transaction_amount)
+        type: number
+        description: Average amount per transaction
+
+      - name: total_discounted_amount
+        sql: SUM(discounted_amount)
+        type: number
+        description: Total discounted amount on transactions
+
+      - name: total_shipping_amount
+        sql: SUM(shipping_amount)
+        type: number
+        description: Total shipping amount for transactions
+
+      - name: total_order_amount
+        sql: SUM(order_total_amount)
+        type: number
+        description: Total amount for orders
+
+      - name: transaction_percentage_with_discount
+        sql: COUNT(CASE WHEN discounted_amount > 0 THEN 1 END) * 100.0 / (COUNT( transaction_id)) 
+        type: number
+        description: Percentage of transsaction with discounts   
+
+      - name: ups_delivered_percentage
+        sql: (COUNT(CASE WHEN shipping_method = 'UPS' AND order_status = 'Delivered' THEN 1 END) * 100.0 / COUNT( order_id)) 
+        type: number
+        description:  The percentage the orders shipped by UPS and the order status is delivered    
+
+      - name: canceled_order_percentage
+        sql: (COUNT(CASE WHEN order_status = 'Canceled' THEN 1 END) * 100.0 / COUNT( order_id))
+        type: number
+        description:  The percentage of the orders cancelled  
+
+      - name: monthly_revenue_curr
+        type: sum
+        sql: transaction_amount
+        rolling_window:
+          trailing: 1 month
+          offset: end
+ 
+      - name: monthly_revenue_prev
+        type: sum
+        sql: transaction_amount
+        rolling_window:
+          trailing: 1 month
+          offset: start         
+
+    segments:
+      - name: paypal_transactions
+        public: true      
+        sql: "{TABLE}.payment_method = 'PayPal'"        
+
+
+
+      # - name: total_discount_percentage
+      #   sql: AVG(discount_percentage)
+      #   type: number
+      #   description: Average discount percentage on orders
+
+    # pre_aggregations:
+    #   - name: total_order_amount_recorded
+    #     measures:
+    #       - total_order_amount
+    #     dimensions:
+    #       - payment_method
+    #     refresh_key:
+    #       every: 1 day     

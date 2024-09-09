@@ -1,0 +1,105 @@
+tables:
+  - name: products
+    sql: {{ load_sql('products') }}
+    description: Table containing information about customer records.
+
+
+    
+    dimensions:
+       
+      - name: productid
+        type: string
+        description: Unique identifier for each product.
+        sql: productid
+        primary_key : true
+        public : true         
+
+      - name: skuid
+        type: string
+        description: Unique identifier for each SKU.
+        sql: skuid
+
+      - name: productname
+        type: string
+        description: Name of the product.
+        sql: productname
+
+      - name: productcategory
+        type: string
+        description: Category to which the product belongs.
+        sql: productcategory
+
+      - name: subcategory
+        type: string
+        description: Subcategory to which the product belongs.
+        sql: subcategory
+
+      - name: gender
+        type: string
+        description: Target gender for the product.
+        sql: gender
+
+      - name: price
+        type: number
+        description: Price of the product.
+        sql: price
+
+      - name: cost
+        type: number
+        description: Cost to produce the product.
+        sql: cost
+
+      - name: launchdate
+        type: time
+        description: Launch date of the product.
+        sql:  launchdate
+
+      - name: designername
+        type: string
+        description: Name of the designer of the product.
+        sql: designername
+
+      - name: color
+        type: string
+        description: Color of the product.
+        sql: color
+
+      - name: size
+        type: string
+        description: Size of the product.
+        sql: size
+
+      - name: model
+        type: string
+        description: Model of the product.
+        sql: model
+      
+
+    measures:
+      
+      - name: total_products
+        sql: productid
+        type: count_distinct
+        description: Total number of products
+
+      - name: average_price
+        sql: price
+        type: avg
+        description: Average price of the products
+
+      - name: total_cost
+        sql: cost
+        type: sum
+        description: Total cost of all products
+
+      - name: average_margin
+        sql: AVG(price - cost)
+        type: number
+        description: "Average profit margin per product"
+      
+      
+    
+      
+      
+      
+     

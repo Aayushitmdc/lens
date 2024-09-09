@@ -1,0 +1,190 @@
+tables:
+
+  - name: customer
+    sql: {{ load_sql('customer') }}
+    description: Table containing information about customer records.
+    
+    joins:
+      - name: transactions
+        relationship: one_to_many
+        sql: "{TABLE.customer_id} = {transaction.customer_id}"
+
+    dimensions:
+      - name: customer_id
+        type: string
+        description: Unique identifier for each customer.
+        sql: customer_id
+        primary_key : true
+        public : true        
+
+      - name: first_name
+        type: string
+        description: First name of the customer.
+        sql: first_name
+
+      - name: last_name
+        type: string
+        description: Last name of the customer.
+        sql: last_name
+
+      - name: gender
+        type: string
+        description: Gender of the customer.
+        sql: gender
+
+      - name: phone_number
+        type: string
+        description: Phone number of the customer.
+        sql: phone_number
+
+      - name: email_id
+        type: string
+        description: Email address of the customer.
+        sql: email_id
+
+      - name: birth_date
+        type: time
+        description: Birth date of the customer.
+        sql: birth_date
+
+      - name: age
+        type: number
+        description: Age of the customer.
+        sql: age
+
+      - name: education_level
+        type: string
+        description: Education level of the customer.
+        sql: education_level
+
+      - name: marital_status
+        type: string
+        description: Marital status of the customer.
+        sql: marital_status
+
+      - name: number_of_children
+        type: number
+        description: Number of children the customer has.
+        sql: number_of_children
+
+      - name: register_date
+        type: time
+        description: Date when the customer registered.
+        sql: register_date
+
+      - name: occupation
+        type: string
+        description: Occupation of the customer.
+        sql: occupation
+
+      - name: annual_income
+        type: string
+        description: Annual income of the customer.
+        sql: annual_income
+        meta:
+          secure:
+            func: redact
+            user_groups:
+              includes:
+                - marketing # secure for everyone
+              excludes:
+                - "*"  # except default        
+
+      - name: hobbies
+        type: string
+        description: Hobbies of the customer.
+        sql: hobbies
+
+      - name: degree_of_loyalty
+        type: string
+        description: Degree of loyalty of the customer.
+        sql: degree_of_loyalty
+
+      - name: social_class
+        type: string
+        description: Social class of the customer.
+        sql: social_class
+
+      - name: mailing_street
+        type: string
+        description: Mailing street address of the customer.
+        sql: mailing_street
+
+      - name: city
+        type: string
+        description: City where the customer lives.
+        sql: city
+
+      - name: state
+        type: string
+        description: State where the customer lives.
+        sql: state
+
+      - name: country
+        type: string
+        description: Country where the customer lives.
+        sql: country
+
+      - name: zip_code
+        type: number
+        description: Zip code of the customer's address.
+        sql: zip_code
+
+      - name: age_group
+        type: string
+        sql: CASE
+              WHEN age < 18 THEN 'Under 18'
+              WHEN age BETWEEN 18 AND 35 THEN '18-35'
+              WHEN age BETWEEN 36 AND 50 THEN '36-50'
+              ELSE 'Above 50'
+             END
+        description: "Age group of the customer"
+
+      - name: full_name
+        type: string
+        sql: CONCAT(first_name, ' ', last_name)
+        description: "Full name of the customer"                    
+
+    measures:
+      
+      - name: total_customers
+        sql: customer_id
+        type: count_distinct
+        description: Total number of customers
+
+      - name: average_age
+        sql: age
+        type: avg
+        description: Average age of the customers
+
+    segments:
+      # - name: minor_age_customer
+      #   public: true      
+      #   sql: "{TABLE}.age_group = 'Under 18'"
+      #   meta:
+      #     secure:
+      #       user_groups: 
+      #         includes:
+      #           - default
+      #         excludes:
+      #           - type_analyst      
+
+
+      - name: loyal_customers
+        public: true
+        sql: "{TABLE}.degree_of_loyalty = 'Hard Core Loyals' " 
+        meta:
+          secure:
+            user_groups: 
+              includes:
+                - type_analyst
+              excludes:
+                - default        
+
+  
+
+    
+      
+      
+      
+     
