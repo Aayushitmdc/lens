@@ -7,7 +7,7 @@ x-lens2-environment: &lens2-environment
   LENS2_NAME: sales_analysis
   LENS2_DESCRIPTION: "Retail"
   LENS2_TAGS: "sales and customer insights"
-  LENS2_AUTHORS: nandapage
+  LENS2_AUTHORS: aayushisolanki
   LENS2_SOURCE_TYPE: minerva
   LENS2_SOURCE_NAME: system
   LENS2_SOURCE_CATALOG_NAME: icebase
