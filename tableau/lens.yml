@@ -1,5 +1,5 @@
 # RESOURCE META SECTION
-name: retail360testnp # Lens Resource name (mandatory)
+name: retail360demo # Lens Resource name (mandatory)
 version: v1alpha # Lens manifest version (mandatory)
 layer: user # DataOS Layer (optional)
 type: lens # Type of Resource (mandatory)
@@ -11,7 +11,7 @@ description: retail360 lens2 deployment on DataOS # Lens Resource description (o
 lens:
   compute: runnable-default # Compute Resource that Lens should utilize (mandatory)
   secrets: # Referred Instance-secret configuration (**mandatory for private code repository, not required for public repository)
-    - name: githubnp # Referred Instance Secret name (mandatory)
+    - name: githubr # Referred Instance Secret name (mandatory)
       allKeys: true # All keys within the secret are required or not (optional)
   source: # Data Source configuration
     type: minerva # Source type 
