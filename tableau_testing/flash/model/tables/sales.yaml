@@ -64,7 +64,7 @@ tables:
             - freshness < 3
 
       - name: posting_date
-        type: time
+        type: date   #time
         column: posting_date
         description: Posting date
 

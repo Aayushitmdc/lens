@@ -15,7 +15,7 @@ views:
         includes:
           - revenue
           - wallet_share
-          - posting_date
+          # - posting_date
           - ext_net
           - source
 
